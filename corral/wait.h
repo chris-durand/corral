@@ -147,6 +147,7 @@ auto try_(TryBlock&& tryBlock) {
 #define CORRAL_CATCH(arg) / [&](arg) -> ::corral::Task<void>
 #define CORRAL_FINALLY % [&]() -> ::corral::Task<void>
 
+#if __cpp_exceptions
 /// As catch_() takes an asynchronous lambda, it will be executed outside
 /// of a normal C++ catch-block (as catch-blocks are not allowed to suspend),
 /// so `throw` without arguments (normally supposed to re-throw the current
@@ -154,6 +155,7 @@ auto try_(TryBlock&& tryBlock) {
 ///
 /// Use `co_await corral::rethrow;` to re-throw the current exception instead.
 static constexpr const detail::RethrowCurrentException rethrow;
+#endif
 
 /// A placeholder type for catch-all clauses in try-blocks
 /// (as `catch_([&](...) -> Task<>` is not allowed in C++).

@@ -321,8 +321,11 @@ template <class MuxT, class Aw> class MuxHelper : public ProxyFrame {
             resumeFn = +[](CoroutineFrame* frame) {
                 static_cast<Self*>(frame)->invoke();
             };
+#if __cpp_exceptions
             try {
+#endif
                 awaitable_.await_suspend(this->toHandle()).resume();
+#if __cpp_exceptions
             } catch (...) {
                 std::exception_ptr ex = std::current_exception();
                 CORRAL_ASSERT(ex && "foreign exceptions and forced unwinds are "
@@ -330,15 +333,19 @@ template <class MuxT, class Aw> class MuxHelper : public ProxyFrame {
                 setState(State::Failed);
                 mux()->invoke(ex);
             }
+#endif
         }
     }
 
     void reportResult() {
         std::exception_ptr ex = nullptr;
+#if __cpp_exceptions
         try {
+#endif
             setState(State::Succeeded);
             new (storage_)
                     StorageType(Storage<Ret>::wrap(awaitable_.await_resume()));
+#if __cpp_exceptions
         } catch (...) {
             setState(State::Failed);
             ex = std::current_exception();
@@ -346,6 +353,7 @@ template <class MuxT, class Aw> class MuxHelper : public ProxyFrame {
                     ex &&
                     "foreign exceptions and forced unwinds are not supported");
         }
+#endif
         mux()->invoke(ex);
     }
 

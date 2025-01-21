@@ -310,7 +310,7 @@ class TryBlockMacroFactory {
     }
 };
 
-
+#if __cpp_exceptions
 struct RethrowCurrentException {
     struct Awaitable {
         bool await_ready() const noexcept { return false; }
@@ -348,5 +348,6 @@ struct RethrowCurrentException {
 
     constexpr RethrowCurrentException() = default;
 };
+#endif
 
 } // namespace corral::detail
