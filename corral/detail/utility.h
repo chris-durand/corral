@@ -376,7 +376,11 @@ void awaitIntrospect(const Aw& awaitable, TaskTreeCollector& c) noexcept {
     if constexpr (Introspectable<Aw>) {
         awaitable.await_introspect(c);
     } else {
+#if __cpp_rtti
         c.node(&typeid(Aw));
+#else
+        c.node("unknown");
+#endif
     }
 }
 

@@ -79,7 +79,11 @@ class TaskTreeCollector {
         if constexpr (Introspectable<Child>) {
             child.await_introspect(*this);
         } else {
+#if __cpp_rtti
             TreeDumpElement elt{&typeid(child), depth_};
+#else
+            TreeDumpElement elt{"unknown", depth_};
+#endif
             sink_(cookie_, elt);
         }
     }
